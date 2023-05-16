@@ -1,0 +1,7 @@
+fastapi==0.68.1
+sqlalchemy==1.4.23
+cloud-sql-python-connector >= 1.2.2
+cloud-sql-python-connector[pg8000] >= 1.2.2
+python-multipart==0.0.5
+python-dotenv==0.19.1
+uvicorn[standard]==0.15.0
