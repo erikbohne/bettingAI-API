@@ -37,6 +37,7 @@ async def get_matches():
             odds[1] as h_odds, 
             odds[2] as u_odds, 
             odds[3] as b_odds,
+            kelly_fraction as kelly,
             strength as strength, 
             value as value,
             change as change
@@ -63,6 +64,7 @@ async def get_matches():
             "h": match["h_odds"],
             "u": match["u_odds"],
             "b": match["b_odds"],
+            "kelly": match["kelly"],
             "strength": match["strength"],
             "value": match["value"],
             "change": match["change"]
