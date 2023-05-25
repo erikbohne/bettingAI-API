@@ -30,8 +30,9 @@ async def get_matches():
     session = initSession()
     result_proxy = session.execute(text("""
         SELECT 
-            schedule.match_id as id, 
-            date as time, 
+            schedule.match_id as id,
+            model_id as model, 
+            date as time,
             home.name as home_team, 
             away.name as away_team, 
             odds[1] as h_odds, 
@@ -47,7 +48,8 @@ async def get_matches():
         INNER JOIN bets ON schedule.match_id = bets.match_id
         ORDER BY time ASC;
     """))
-
+    session.close()
+    
     # Fetch column names
     keys = result_proxy.keys()
 
@@ -59,6 +61,7 @@ async def get_matches():
     for match in matches:
         formatted_matches.append({
             "id": match["id"],
+            "model": match["model"],
             "time": (match["time"] + timedelta(hours=2)).strftime('%b %d %H:%M'),
             "name": f"{match['home_team']} vs {match['away_team']}",
             "h": match["h_odds"],
@@ -78,7 +81,8 @@ async def performance():
     result_proxy = session.execute(text(
         "SELECT id, model_id, bet_type, bet_outcome, odds, placed, outcome FROM performance ORDER BY id;"
         ))
-
+    session.close()
+    
     keys = result_proxy.keys()
     performance_data = [dict(zip(keys, row)) for row in result_proxy.fetchall()]
     
@@ -95,6 +99,7 @@ async def performance():
         profit = 0  # Starting profit
         data_points = [{"x": 0, "y": 0}]  # Start with a data point at x=0, y=0
 
+        x = 1
         for bet in model_data:
             # Determine which odds value to use
             if bet["bet_outcome"] == "H":
@@ -109,7 +114,8 @@ async def performance():
             else:
                 profit -= bet["placed"]
 
-            data_points.append({"x": bet["id"], "y": profit})
+            data_points.append({"x": x, "y": profit})
+            x += 1
 
         formatted_data.append({
             "id": f"model {modelID}",
@@ -138,7 +144,8 @@ async def get_stats():
             COUNT(id) AS total_bets
         FROM performance;
     """)
-
+    session.close()
+    
     result = session.execute(combined_query).fetchone()
 
     money_won_result = result[0]
@@ -219,7 +226,8 @@ async def get_match(id: int):
         """),
         {'match_id': id}
     )
-
+    session.close()
+    
     result = result_proxy.fetchone()
 
     if result is None:
@@ -261,7 +269,8 @@ async def get_history():
         ORDER BY time DESC
         LIMIT 100;
     """))
-
+    session.close()
+    
     # Fetch column names
     keys = result_proxy.keys()
 
